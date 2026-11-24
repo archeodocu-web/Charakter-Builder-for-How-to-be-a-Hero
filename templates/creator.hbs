@@ -1,0 +1,173 @@
+<form class="htbah-creator-form">
+  <div class="htbah-creator-header">
+    <div>
+      <p class="htbah-eyebrow">HOW TO BE A HERO</p>
+      <h2>Charakter erstellen</h2>
+    </div>
+    <div class="htbah-points-summary">
+      <span>Fähigkeitspunkte</span>
+      <strong><span data-live-assigned>{{assignedPoints}}</span> / <span data-live-budget>{{#if hasPointBudget}}{{pointBudget}}{{else}}–{{/if}}</span></strong>
+      <small data-live-remaining>{{#if hasPointBudget}}Noch {{remainingPoints}} verfügbar{{else}}Gesamtbudget fehlt{{/if}}</small>
+    </div>
+  </div>
+
+  <nav class="htbah-step-navigation" aria-label="Erstellungsschritte">
+    {{#each stepLabels as |stepLabel|}}
+      <button type="button" class="htbah-step {{#if (eq stepLabel.index ../step)}}active{{/if}} {{#if (lt stepLabel.index ../step)}}complete{{/if}}" data-action="goToStep" data-step="{{stepLabel.index}}">
+        <span>{{stepLabel.number}}</span>
+        <small>{{stepLabel.label}}</small>
+      </button>
+    {{/each}}
+  </nav>
+
+  {{#if error}}
+    <p class="htbah-error" role="alert">{{error}}</p>
+  {{/if}}
+
+  {{#if isStep0}}
+    <section class="htbah-creator-step">
+      <h3>Grunddaten</h3>
+      <p class="htbah-muted">Name, Alter, Geschlecht und Lebenspunkte deines Charakters.</p>
+      <div class="htbah-form-grid">
+        <label class="htbah-field-wide">Name
+          <input type="text" name="name" value="{{state.name}}" autocomplete="off" required>
+        </label>
+        <label>Alter
+          <input type="number" name="age" min="0" step="1" value="{{state.age}}">
+        </label>
+        <label>Geschlecht
+          <input type="text" name="sex" value="{{state.sex}}" autocomplete="off">
+        </label>
+        <label>Lebenspunkte
+          <input type="number" name="health" min="0" step="1" value="{{state.health}}">
+        </label>
+        <label class="htbah-field-wide">Portrait / Bildpfad
+          <div class="htbah-file-field">
+            <input type="text" name="portrait" value="{{state.portrait}}" placeholder="Optionaler Bildpfad">
+            <button type="button" class="htbah-secondary-button" data-action="choosePortrait">Bild wählen</button>
+          </div>
+        </label>
+      </div>
+    </section>
+  {{/if}}
+
+  {{#if isStep1}}
+    <section class="htbah-creator-step">
+      <h3>Hintergrund und Besitz</h3>
+      <p class="htbah-muted">Diese Angaben werden in den Biografie-Bereich des Foundry-Charakters übernommen. Inventareinträge werden als echte Items angelegt.</p>
+      <div class="htbah-form-grid">
+        <label>Beruf (historische Auswahl, ca. 1850–1900)
+          <select name="job">
+            <option value="">Bitte Beruf auswählen …</option>
+            {{#each jobGroups as |group|}}
+              <optgroup label="{{group.label}}">
+                {{#each group.occupations as |occupation|}}
+                  <option value="{{occupation.value}}" {{#if occupation.selected}}selected{{/if}}>{{occupation.value}}</option>
+                {{/each}}
+              </optgroup>
+            {{/each}}
+            <option value="__htbah_custom_job__" {{#if jobIsCustom}}selected{{/if}}>Anderer Beruf / Freitext …</option>
+          </select>
+        </label>
+        <label data-custom-job-field {{#unless jobIsCustom}}hidden{{/unless}}>Eigener Beruf
+          <input type="text" name="jobCustom" value="{{state.jobCustom}}" placeholder="Beruf frei eingeben" autocomplete="off">
+        </label>
+        <label>Statur
+          <input type="text" name="stature" value="{{state.stature}}" autocomplete="off">
+        </label>
+        <label>Religion
+          <input type="text" name="religion" value="{{state.religion}}" autocomplete="off">
+        </label>
+        <label>Familienstand
+          <input type="text" name="familyStatus" value="{{state.familyStatus}}" autocomplete="off">
+        </label>
+        <label class="htbah-field-wide">Inventar (ein Gegenstand pro Zeile)
+          <textarea name="inventory" rows="4" placeholder="z. B. Rucksack&#10;Messer&#10;Seil">{{state.inventory}}</textarea>
+        </label>
+        <label class="htbah-field-wide">Anmerkungen
+          <textarea name="notes" rows="3">{{state.notes}}</textarea>
+        </label>
+      </div>
+    </section>
+  {{/if}}
+
+  {{#if isStep2}}
+    <section class="htbah-creator-step">
+      <h3>Fähigkeiten und Punkteverteilung</h3>
+      <p class="htbah-muted">Lege dein Gesamtbudget selbst fest. Es gibt keine feste 400-Punkte-Grenze. Alle eingegebenen Fähigkeitspunkte werden direkt summiert. Es gibt keinen Kategoriebonus.</p>
+
+      <div class="htbah-budget-control">
+        <label for="htbah-point-budget">Gesamtbudget an Fähigkeitspunkten</label>
+        <input id="htbah-point-budget" type="number" name="pointBudget" min="0" step="1" value="{{state.pointBudget}}" required>
+      </div>
+
+      <div class="htbah-skill-category-grid" data-skill-editor>
+        {{#each categories as |category|}}
+          <section class="htbah-skill-category" data-skill-category="{{category.key}}">
+            <header>
+              <h4>{{category.label}}</h4>
+              <span data-category-summary>{{category.rawTotal}} Punkte</span>
+            </header>
+            <div class="htbah-skill-rows">
+              {{#each category.skills as |skill|}}
+                <div class="htbah-skill-row" data-skill-row>
+                  <input type="text" data-skill-name value="{{skill.name}}" placeholder="Fähigkeit" aria-label="Name der Fähigkeit">
+                  <input type="number" data-skill-value min="0" step="1" value="{{skill.value}}" aria-label="Punkte in dieser Fähigkeit">
+                  <span class="htbah-calculated-value" data-skill-calculated title="Eingegebene Fähigkeitspunkte">{{skill.calculatedValue}}</span>
+                  <button type="button" data-action="removeSkill" data-category="{{category.key}}" data-index="{{skill.index}}" title="Fähigkeit entfernen" aria-label="Fähigkeit entfernen"><i class="fas fa-trash"></i></button>
+                </div>
+              {{else}}
+                <p class="htbah-empty-skills">Noch keine Fähigkeiten eingetragen.</p>
+              {{/each}}
+            </div>
+            <button type="button" class="htbah-add-skill" data-action="addSkill" data-category="{{category.key}}"><i class="fas fa-plus"></i> Fähigkeit hinzufügen</button>
+          </section>
+        {{/each}}
+      </div>
+    </section>
+  {{/if}}
+
+  {{#if isStep3}}
+    <section class="htbah-creator-step">
+      <h3>Charakterübersicht</h3>
+      <p class="htbah-muted">Prüfe deine Angaben. Beim Erstellen werden Fähigkeiten und Inventar als echte How-to-be-a-Hero-Items am Actor angelegt.</p>
+      <div class="htbah-preview-profile">
+        <div><small>Name</small><strong>{{namePreview}}</strong></div>
+        <div><small>Alter</small><strong>{{#if state.age}}{{state.age}}{{else}}–{{/if}}</strong></div>
+        <div><small>Lebenspunkte</small><strong>{{state.health}}</strong></div>
+        <div><small>Beruf</small><strong>{{#if jobDisplay}}{{jobDisplay}}{{else}}–{{/if}}</strong></div>
+        <div><small>Statur</small><strong>{{#if state.stature}}{{state.stature}}{{else}}–{{/if}}</strong></div>
+      </div>
+      <div class="htbah-preview-categories">
+        {{#each categories as |category|}}
+          <section class="htbah-preview-category">
+            <header><strong>{{category.label}}</strong><span>{{category.rawTotal}} Punkte</span></header>
+            {{#each category.skills as |skill|}}
+              <div class="htbah-preview-skill"><span>{{skill.name}}</span><span><strong>{{skill.value}}</strong> Punkte</span></div>
+            {{else}}
+              <p class="htbah-empty-skills">Keine Fähigkeiten.</p>
+            {{/each}}
+          </section>
+        {{/each}}
+      </div>
+      <p class="htbah-preview-total">Verteilt: <strong>{{assignedPoints}} / {{pointBudget}}</strong> · Übrig: <strong>{{remainingPoints}}</strong></p>
+      {{#if state.inventory}}
+        <p class="htbah-preview-note"><strong>Inventar:</strong> {{state.inventory}}</p>
+      {{/if}}
+    </section>
+  {{/if}}
+
+  <footer class="htbah-creator-footer">
+    <button type="button" class="htbah-secondary-button" data-action="cancel">Abbrechen</button>
+    <div class="htbah-footer-right">
+      {{#unless isFirstStep}}
+        <button type="button" class="htbah-secondary-button" data-action="previous"><i class="fas fa-arrow-left"></i> Zurück</button>
+      {{/unless}}
+      {{#if isLastStep}}
+        <button type="button" class="htbah-primary-button" data-action="finish"><i class="fas fa-check"></i> Charakter erstellen</button>
+      {{else}}
+        <button type="button" class="htbah-primary-button" data-action="next">Weiter <i class="fas fa-arrow-right"></i></button>
+      {{/if}}
+    </div>
+  </footer>
+</form>

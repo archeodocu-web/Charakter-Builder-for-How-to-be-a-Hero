@@ -1,0 +1,32 @@
+{
+  "id": "htbah-character-creator",
+  "title": "How to be a Hero – Character Creator",
+  "description": "Adds a native How to be a Hero character creator with live skill-point accounting, historical occupation suggestions, and legacy Item repair.",
+  "version": "1.0.6",
+  "authors": [
+    {
+      "name": "How to be a Hero community module"
+    }
+  ],
+  "compatibility": {
+    "minimum": "13",
+    "verified": "14.368"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "how-to-be-a-hero",
+        "type": "system",
+        "compatibility": {
+          "minimum": "1.1.19"
+        }
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/main.mjs"
+  ],
+  "styles": [
+    "styles/creator.css"
+  ]
+}

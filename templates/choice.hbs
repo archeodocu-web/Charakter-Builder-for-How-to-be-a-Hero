@@ -1,0 +1,29 @@
+<form class="htbah-choice-form">
+  <div class="htbah-choice-intro">
+    <p>Der neue <strong>How to be a Hero</strong>-Charakter wurde angelegt.</p>
+    {{#if requestedName}}
+      <p class="htbah-muted">Charakter: <strong>{{requestedName}}</strong></p>
+    {{/if}}
+    <p>Wie möchtest du ihn vervollständigen?</p>
+  </div>
+
+  <div class="htbah-choice-options">
+    <button type="button" class="htbah-choice-card primary" data-action="useCreator">
+      <span class="htbah-choice-icon"><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i></span>
+      <span class="htbah-choice-copy">
+        <strong>Character Creator verwenden</strong>
+        <small>Führt durch die Charakterdaten und die freie Verteilung deines Fähigkeitspunktebudgets. Die Daten werden in diesen Actor übernommen.</small>
+      </span>
+      <i class="fas fa-chevron-right" aria-hidden="true"></i>
+    </button>
+
+    <button type="button" class="htbah-choice-card" data-action="createManually">
+      <span class="htbah-choice-icon"><i class="fas fa-user-pen" aria-hidden="true"></i></span>
+      <span class="htbah-choice-copy">
+        <strong>Manuell fortfahren</strong>
+        <small>Öffnet den normalen leeren How-to-be-a-Hero-Charakter zum Bearbeiten.</small>
+      </span>
+      <i class="fas fa-chevron-right" aria-hidden="true"></i>
+    </button>
+  </div>
+</form>
